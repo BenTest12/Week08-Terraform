@@ -58,20 +58,20 @@ resource "azurerm_network_security_group" "weight_app_nsg" {
     direction                  = "Inbound"
     access                     = "Allow"
     protocol                   = "Tcp"
-    source_port_range          = "8080"
-    destination_port_range     = "*"
+    source_port_range          = "*"
+    destination_port_range     = "8080"
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
 
   security_rule {
-    name                       = "RDP"
+    name                       = "ssh"
     priority                   = 110
     direction                  = "Inbound"
     access                     = "Allow"
     protocol                   = "Tcp"
-    source_port_range          = "3389"
-    destination_port_range     = "*"
+    source_port_range          = "*"
+    destination_port_range     = "22"
     source_address_prefix      = var.my_ip
     destination_address_prefix = "*"
   }
@@ -83,25 +83,14 @@ resource "azurerm_network_security_group" "db_nsg" {
   location            = var.rg_location
   resource_group_name = azurerm_resource_group.project_rg.name
 
-  # security_rule {
-  #   name                       = "SSH"
-  #   priority                   = 100
-  #   direction                  = "Inbound"
-  #   access                     = "Allow"
-  #   protocol                   = "*"
-  #   source_port_range          = "22"
-  #   destination_port_range     = "*"
-  #   source_address_prefix      = var.app_subnet_address_range
-  #   destination_address_prefix = "*"
-  # }
   security_rule {
     name                       = "port_5432"
     priority                   = 110
     direction                  = "Inbound"
     access                     = "Allow"
     protocol                   = "Tcp"
-    source_port_range          = "5432"
-    destination_port_range     = "*"
+    source_port_range          = "*"
+    destination_port_range     = "5432"
     source_address_prefix      = var.app_subnet_address_range
     destination_address_prefix = "*"
   }
@@ -125,7 +114,7 @@ resource "azurerm_public_ip" "project_lb" {
   location            = azurerm_resource_group.project_rg.location
   resource_group_name = azurerm_resource_group.project_rg.name
   allocation_method   = "Static"
-  domain_name_label   = "${azurerm_resource_group.project_rg.name}-personal-ip55"
+  domain_name_label   = "${azurerm_resource_group.project_rg.name}-personal-ip56"
 }
 
 resource "azurerm_lb" "app_load_balancer" {
@@ -146,7 +135,7 @@ resource "azurerm_lb_backend_address_pool" "bepool" {
 
 resource "azurerm_lb_nat_pool" "lbnatpool" {
   resource_group_name            = azurerm_resource_group.project_rg.name
-  name                           = "shellaccess"
+  name                           = "ssh"
   loadbalancer_id                = azurerm_lb.app_load_balancer.id
   protocol                       = "Tcp"
   frontend_port_start            = 50000
@@ -198,7 +187,7 @@ module "weight_app_vmss" {
 }
 
 resource "azurerm_private_dns_zone" "private_dns_zone" {
-  name                = "${azurerm_resource_group.project_rg.name}-55db.postgres.database.azure.com"
+  name                = "${azurerm_resource_group.project_rg.name}-66db.postgres.database.azure.com"
   resource_group_name = azurerm_resource_group.project_rg.name
 }
 
@@ -210,7 +199,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "private_dns_zone_vnl" 
 }
 
 resource "azurerm_postgresql_flexible_server" "postgres_server" {
-  name                   = "${azurerm_resource_group.project_rg.name}-database-tf"
+  name                   = "${azurerm_resource_group.project_rg.name}-database-tff"
   resource_group_name    = azurerm_resource_group.project_rg.name
   location               = azurerm_resource_group.project_rg.location
   version                = "12"

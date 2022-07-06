@@ -2,7 +2,7 @@ terraform {
   required_version = ">= 1.2.0"
 }
 
-resource "azurerm_windows_virtual_machine_scale_set" "weight_app_vmss" {
+resource "azurerm_linux_virtual_machine_scale_set" "weight_app_vmss" {
   name                            = "${var.weight_app_name_prefix}-vmss"
   admin_username                  = var.admin_user
   admin_password                  = var.admin_password
@@ -11,12 +11,13 @@ resource "azurerm_windows_virtual_machine_scale_set" "weight_app_vmss" {
   resource_group_name             = var.resource_group_name
   sku                             = var.resource_group_name == "production" ? "Standard_B2s" : "Standard_B2ms"
   upgrade_mode                    = "Automatic"
+  disable_password_authentication = false
   depends_on                      = [var.weight_app_nsg_id]
 
   source_image_reference {
-    publisher = "MicrosoftWindowsServer"
-    offer     = "WindowsServer"
-    sku       = "2019-Datacenter-Server"
+    publisher = "Canonical"
+    offer     = "0001-com-ubuntu-server-focal"
+    sku       = "20_04-lts-gen2"
     version   = "latest"
   }
 
@@ -45,8 +46,8 @@ resource "azurerm_monitor_autoscale_setting" "autoscale_setting" {
   location            = var.resource_group_location
   name                = "autoscale_setting"
   resource_group_name = var.resource_group_name
-  target_resource_id  = azurerm_windows_virtual_machine_scale_set.weight_app_vmss.id
-  depends_on          = [var.resource_group_name, azurerm_windows_virtual_machine_scale_set.weight_app_vmss]
+  target_resource_id  = azurerm_linux_virtual_machine_scale_set.weight_app_vmss.id
+  depends_on          = [var.resource_group_name, azurerm_linux_virtual_machine_scale_set.weight_app_vmss]
   profile {
     name = "AutoScale"
     capacity {
