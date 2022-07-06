@@ -9,7 +9,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "weight_app_vmss" {
   instances                       = var.number_of_instances
   location                        = var.resource_group_location
   resource_group_name             = var.resource_group_name
-  sku                             = var.resource_group_name == "production" ? "Standard_B2s" : "Standard_B2ms"
+  sku                             = var.resource_group_name == "production" ? "Standard_B2ms" : "Standard_B2s"
   upgrade_mode                    = "Automatic"
   disable_password_authentication = false
   depends_on                      = [var.weight_app_nsg_id]
